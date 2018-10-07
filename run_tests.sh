@@ -17,9 +17,9 @@ run 50;
 
 counter=100;
 
-while [ $counter -le 3000 ]
+while [ $counter -le 2500 ]
 do
-  ((counter+=100))
-
   run $counter;
+
+  ((counter+=100))
 done
