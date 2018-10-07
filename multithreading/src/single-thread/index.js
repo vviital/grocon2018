@@ -15,13 +15,14 @@ const calculateDistances = async (flatMatrix, size) => {
 
       for (let j = 0; j < matrix.size; ++j) {
         const nextLength = iTok + array[j];
-        if (nextLength < matrix.get(i, j)) {
-          matrix.set(i, j, value);
-        }
+        const currentLenght = matrix.get(i, j);
+        const value = nextLength > currentLenght ? currentLenght : nextLength;
+
+        matrix.set(i, j, value);
       }
     }
   }
-  
+
   return matrix;
 };
 
