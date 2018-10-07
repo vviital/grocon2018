@@ -34,10 +34,8 @@ class Lock {
 
   doWithLock(fn) {
     this.lock();
-    // console.log(this.id, 'lock');
     fn();
     this.unlock();
-    // console.log(this.id, 'unlock');
   }
 
   unlock() {

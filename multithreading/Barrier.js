@@ -2,59 +2,60 @@ const Lock = require('./Lock');
 
 module.exports = (barriers, locks) => {
   class Barrier {
-    constructor({ threadsCount, id }) {
+    constructor({ threadsCount }) {
       this.threadsCount = threadsCount;
       this.localsense = 0;
       this.lock = new Lock(locks, 0);
-      this.lock.id = id;
-      this.id = id;
+
+      this._counterIndex = 0;
+      this._releaseFlagIndex = 1;
     }
 
     get counter() {
-      return Atomics.load(barriers, 0);
+      return Atomics.load(barriers, this._counterIndex);
     }
 
-    _incrementCounter(value = 1) {
-      return Atomics.add(barriers, 0, value);
+    incrementCounter(value = 1) {
+      return Atomics.add(barriers, this._counterIndex, value);
     }
 
-    _resetCounter() {
-      return Atomics.store(barriers, 0, 0);
+    resetCounter() {
+      return Atomics.store(barriers, this._counterIndex, 0);
     }
 
-    _setReleaseFlag() {
-      return Atomics.store(barriers, 1, this.localsense);
+    set releaseFlag (value) {
+      return Atomics.store(barriers, this._releaseFlagIndex, value)
     }
 
-    _reversedReleaseFlag () {
+    get reversedLocalsence () {
       if (this.localsense) return 0;
       return 1;
     }
 
-    _flipReleaseFlag() {
-      this.localsense = this._reversedReleaseFlag();
+    switchReleaseFlag() {
+      this.localsense = this.reversedLocalsence;
     }
 
-    _waitForRelease() {
-      Atomics.notify(barriers, 1);
+    waitForRelease() {
+      Atomics.notify(barriers, this._releaseFlagIndex);
 
       while (true) {
-        const value = Atomics.wait(barriers, 1, this._reversedReleaseFlag());
+        const value = Atomics.wait(barriers, this._releaseFlagIndex, this.reversedLocalsence);
 
         if (value !== 'ok') return;
       }
     }
   
     enter() {
-      this._flipReleaseFlag();
+      this.switchReleaseFlag();
       this.lock.doWithLock(() => {
-        this._incrementCounter();
+        this.incrementCounter();
         if (this.counter === this.threadsCount) {
-          this._resetCounter();
-          this._setReleaseFlag();
+          this.resetCounter();
+          this.releaseFlag = this.localsense;
         }
       });
-      this._waitForRelease();
+      this.waitForRelease();
     }
   }
   
