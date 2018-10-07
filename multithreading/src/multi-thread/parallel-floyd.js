@@ -23,9 +23,10 @@ const calculateDistance = async (matrix, barrier) => {
       let iTok = matrix.get(i, k);
       for (let j = 0; j < matrix.size; ++j) {
         const nextLength = iTok + array[j];
-        if (matrix.get(i, j) > nextLength) {
-          matrix.set(i, j, nextLength);
-        }
+        const currentLenght = matrix.get(i, j);
+        const value = nextLength > currentLenght ? currentLenght : nextLength;
+
+        matrix.set(i, j, value);
       }
     }
   }
