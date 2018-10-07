@@ -15,25 +15,9 @@ module.exports = (barriers, locks) => {
       return Atomics.load(barriers, this._counterIndex);
     }
 
-    incrementCounter(value = 1) {
-      return Atomics.add(barriers, this._counterIndex, value);
-    }
-
-    resetCounter() {
-      return Atomics.store(barriers, this._counterIndex, 0);
-    }
-
-    set releaseFlag (value) {
-      return Atomics.store(barriers, this._releaseFlagIndex, value)
-    }
-
     get reversedLocalsence () {
       if (this.localsense) return 0;
       return 1;
-    }
-
-    switchReleaseFlag() {
-      this.localsense = this.reversedLocalsence;
     }
 
     waitForRelease() {
@@ -47,12 +31,12 @@ module.exports = (barriers, locks) => {
     }
   
     enter() {
-      this.switchReleaseFlag();
+      this.localsense = this.reversedLocalsence;
       this.lock.doWithLock(() => {
-        this.incrementCounter();
+        Atomics.add(barriers, this._counterIndex, 1);
         if (this.counter === this.threadsCount) {
-          this.resetCounter();
-          this.releaseFlag = this.localsense;
+          Atomics.store(barriers, this._counterIndex, 0);
+          Atomics.store(barriers, this._releaseFlagIndex, this.localsense);
         }
       });
       this.waitForRelease();
