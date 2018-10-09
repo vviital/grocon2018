@@ -4,12 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --experimental-worker node_modules/.bin/jest --runInBand"
+    "test": "node --experimental-worker node_modules/.bin/jest --runInBand",
+    "start": "node --experimental-worker --inspect=127.0.0.1:9999 --inspect-brk ./multithreading/index.js",
+    "start-server": "node ./http2/src/index"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "faker": "^4.1.0",
     "jest": "^23.6.0",
     "lodash": "^4.17.11"
   }

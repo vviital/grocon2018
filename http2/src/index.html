@@ -1,0 +1,36 @@
+<html>
+  <script>
+    const appendUnicorn = (unicorn, options = {}) => {
+      const id = options.withoutServerPush ? 'unicorns-without-server-push' : 'unicorns-with-server-push';
+      const div = document.getElementById(id);
+
+      const child = document.createElement('div');
+      child.innerHTML = JSON.stringify(unicorn, ' ', 1).replace(/\n/g, '<br />');
+
+      div.appendChild(child);
+    };
+
+    const fetchUnicorn = (id, options = {}) => fetch(`/unicorns/${id}`)
+      .then(response => response.json())
+      .then(unicorn => appendUnicorn(unicorn, options))
+      .catch((error) => {
+        console.error('something bad happend', error);
+      });
+
+    const fetcher = (unicorns = [], options) => {
+      if (!unicorns.length) return Promise.resolve();
+
+      const unicorn = unicorns.shift();
+
+      return fetchUnicorn(unicorn, options).then(fetcher.bind(null, unicorns, options));
+    };
+
+    fetcher([1, 2, 3]);
+    fetcher([4, 5, 6], { withoutServerPush: true });
+  </script>
+
+  <div style="width: 100%; display: flex;">
+    <div id="unicorns-with-server-push"  style="width: 50%;"></div>
+    <div id="unicorns-without-server-push" style="width: 50%"></div>
+  </div>
+</html>

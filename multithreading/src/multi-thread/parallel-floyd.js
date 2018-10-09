@@ -35,6 +35,8 @@ const calculateDistance = async (matrix, barrier) => {
 parentPort.once('message', async (msg) => {
   const { array, locks, barriers } = msg;
 
+  debugger;
+
   const Barrier = require('../../Barrier')(barriers, locks);
 
   const matrix = new Matrix({ size, memory: array });
