@@ -18,6 +18,7 @@ const options = {
   key: fs.readFileSync(path.resolve(process.cwd(), 'creds', 'self.key')),
   cert: fs.readFileSync(path.resolve(process.cwd(), 'creds', 'self.cert')),
   allowHTTP1: true,
+  peerMaxConcurrentStreams: 1000,
 };
 
 const pushContent = (content, err, pushStream) => {
@@ -49,6 +50,8 @@ const start = () => {
     }
     console.log('--- main handler ---');
 
+    await sleep(500);
+
     loggerRequest(req);
     const { headers } = req;
     const route = headers[':path'];
@@ -62,12 +65,14 @@ const start = () => {
         return !notFound(res);
       }
 
-      await sleep(300);
-
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(unicorn));
-    } else if (route.includes('numbers')) {
+    } else if (route === '/numbers') {
       res.end(numbers);
+    } else if (route.includes('/numbers')){
+      const number = +route.replace('/numbers/', '');
+
+      res.end(JSON.stringify({ value: number, trash: faker.lorem.paragraphs() }));
     } else {
       notFound(res);
     }
@@ -83,48 +88,11 @@ const start = () => {
     });
   }
 
-  const pushNumbers = (stream) => {
-    const size = 30 * 30;
-
-    if (!stream.pushAllowed) return;
-
-    let previousStream = null;
-
-    const priorityValue = size * size;
- 
-    for (let number = size - 1; number >= 0; number--) {
-      stream.pushStream({ ':path': `/numbers/${number}` }, (err, pushStream) => {
-        if (err) throw err;
-
-        const priority = {
-          exclusive: true,
-          weight: Math.ceil(priorityValue / (size - number + 1)),
-          silent: false,
-        }
-
-        if (previousStream) {
-          priority.parent = previousStream;
-        }
-
-        console.log('priority', priority);
-
-        previousStream = pushStream.id;
-
-        pushStream.respond({ ':status': 200 });
-        pushStream.priority(priority);
-        pushStream.end(JSON.stringify({ value: number }));
-      });
-    }
-  };
-
   server.on('stream', (stream, headers) => {
     console.log('--- stream ---');
 
-    console.log('--- stream ---', stream.priority);
     if (headers[':path'] === '/') {
       return pushUnicorns(stream);
-    } else if (headers[':path'] === '/numbers') {
-      return pushNumbers(stream);
     }
   });
 
