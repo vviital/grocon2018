@@ -48,7 +48,6 @@ const start = () => {
     if (req.httpVersion !== '2.0') {
       return res.end(JSON.stringify({ version: req.httpVersion }));
     }
-    console.log('--- main handler ---');
 
     await sleep(500);
 
@@ -61,18 +60,10 @@ const start = () => {
       const id = +route.replace('/unicorns/', '');
       const unicorn = unicorns.find(v => v.id === id);
 
-      if (!unicorn) {
-        return !notFound(res);
-      }
+      if (!unicorn) return !notFound(res);
 
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(unicorn));
-    } else if (route === '/numbers') {
-      res.end(numbers);
-    } else if (route.includes('/numbers')){
-      const number = +route.replace('/numbers/', '');
-
-      res.end(JSON.stringify({ value: number, trash: faker.lorem.paragraphs() }));
     } else {
       notFound(res);
     }
@@ -89,8 +80,6 @@ const start = () => {
   }
 
   server.on('stream', (stream, headers) => {
-    console.log('--- stream ---');
-
     if (headers[':path'] === '/') {
       return pushUnicorns(stream);
     }
