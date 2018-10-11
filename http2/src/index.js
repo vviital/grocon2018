@@ -11,8 +11,7 @@ const unicorns = [1, 2, 3, 4, 5, 6].map(number => ({
   path: `/unicorns/${number}`,
 }));
 
-const index = fs.readFileSync(path.resolve(__dirname, 'index.html'));
-const numbers = fs.readFileSync(path.resolve(__dirname, 'numbers.html'));
+const index = fs.readFileSync(path.join(process.cwd(), 'assets', 'index.html'));
 
 const options = {
   key: fs.readFileSync(path.resolve(process.cwd(), 'creds', 'self.key')),

@@ -6,14 +6,19 @@
   "scripts": {
     "test": "node --experimental-worker node_modules/.bin/jest --runInBand",
     "start": "node --experimental-worker --inspect=127.0.0.1:9999 --inspect-brk ./multithreading/index.js",
-    "start-server": "node ./http2/src/index"
+    "start-server": "node ./http2/src/index",
+    "start-koa-server": "nodemon ./http2-koa/src/index"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.16.3",
     "faker": "^4.1.0",
     "jest": "^23.6.0",
-    "lodash": "^4.17.11"
+    "koa": "^2.5.3",
+    "koa-router": "^7.4.0",
+    "lodash": "^4.17.11",
+    "nodemon": "^1.18.4"
   }
 }
