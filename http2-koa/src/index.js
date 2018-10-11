@@ -25,7 +25,7 @@ const router = new Router();
 const sleep = (timeout) => new Promise((resolve) => setTimeout(resolve, timeout));
 
 router.get('/unicorns/:id', async (ctx) => {
-  await sleep(500);
+  await sleep(1000);
 
   const unicorn = { ...(unicorns[ctx.params.id - 1] || {}) };
   unicorn.query = !_.isEmpty(ctx.query) ? ctx.query : undefined;

@@ -1,11 +1,22 @@
 <html>
   <script>
+    const unicornUrl = 'https://i.stack.imgur.com/EzZiD.png';
+
     const appendUnicorn = (unicorn, options = {}) => {
       const id = options.withoutServerPush ? 'unicorns-without-server-push' : 'unicorns-with-server-push';
       const div = document.getElementById(id);
 
       const child = document.createElement('div');
-      child.innerHTML = JSON.stringify(unicorn, ' ', 1).replace(/\n/g, '<br />');
+      
+      const html = `
+        <div style="display: flex; justify-content: center; width: 100%;">
+          <img src="${unicornUrl}" style="width: 200px; height: 200px;" />
+        </div>
+        <div style="display: flex; width: 100%; height: 40px; align-items: center; justify-content: center;">
+          ${unicorn.name}, id = ${unicorn.id}
+        </div>
+      `;
+      child.innerHTML = html;
 
       div.appendChild(child);
     };
@@ -29,8 +40,10 @@
     fetcher([4, 5, 6], { withoutServerPush: true });
   </script>
 
-  <div style="width: 100%; display: flex;">
-    <div id="unicorns-with-server-push"  style="width: 50%;"></div>
-    <div id="unicorns-without-server-push" style="width: 50%"></div>
-  </div>
+  <body style="background: #f3f3f3;">
+    <div style="width: 100%; display: flex;">
+      <div id="unicorns-with-server-push"  style="width: 50%;"></div>
+      <div id="unicorns-without-server-push" style="width: 50%"></div>
+    </div>
+  </body>
 </html>
