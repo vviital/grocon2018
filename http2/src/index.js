@@ -1,24 +1,6 @@
-const http2 = require('http2');
-const fs = require('fs');
-const path = require('path');
-const faker = require('faker');
+const common = require('../../http2-common/index');
 
 const port = process.env.PORT || 7000;
-
-const unicorns = [1, 2, 3, 4, 5, 6].map(number => ({
-  id: number,
-  name: faker.name.findName(),
-  path: `/unicorns/${number}`,
-}));
-
-const index = fs.readFileSync(path.join(process.cwd(), 'assets', 'index.html'));
-
-const options = {
-  key: fs.readFileSync(path.resolve(process.cwd(), 'creds', 'self.key')),
-  cert: fs.readFileSync(path.resolve(process.cwd(), 'creds', 'self.cert')),
-  allowHTTP1: true,
-  peerMaxConcurrentStreams: 1000,
-};
 
 const pushContent = (content, err, pushStream) => {
   if (err) throw err;
@@ -42,8 +24,18 @@ const loggerRequest = (req) => {
   console.log(`${method} ${route}`);
 };
 
+const pushUnicorns = (stream) => {
+  const cachedUnicorns = common.unicorns.slice(0, 3);
+
+  if (!stream.pushAllowed) return;
+
+  cachedUnicorns.forEach((unicorn) => {
+    stream.pushStream({ ':path': unicorn.path }, pushContent.bind(null, unicorn));
+  });
+}
+
 const start = () => {
-  const server = http2.createSecureServer(options, async (req, res) => {
+  const listener = async (req, res) => {
     if (req.httpVersion !== '2.0') {
       return res.end(JSON.stringify({ version: req.httpVersion }));
     }
@@ -54,10 +46,10 @@ const start = () => {
     const { headers } = req;
     const route = headers[':path'];
     if (route === '/') {
-      res.end(index);
+      res.end(common.index);
     } else if (route.includes('unicorns')) {
       const id = +route.replace('/unicorns/', '');
-      const unicorn = unicorns.find(v => v.id === id);
+      const unicorn = common.unicorns.find(v => v.id === id);
 
       if (!unicorn) return !notFound(res);
 
@@ -66,25 +58,16 @@ const start = () => {
     } else {
       notFound(res);
     }
-  });
+  };
 
-  const pushUnicorns = (stream) => {
-    const cachedUnicorns = unicorns.slice(0, 3);
-
-    if (!stream.pushAllowed) return;
-
-    cachedUnicorns.forEach((unicorn) => {
-      stream.pushStream({ ':path': unicorn.path }, pushContent.bind(null, unicorn));
-    });
-  }
-
-  server.on('stream', (stream, headers) => {
+  common.server.on('stream', (stream, headers) => {
     if (headers[':path'] === '/') {
       return pushUnicorns(stream);
     }
   });
 
-  server.listen(port);
+  common.server.listen(port);
+  common.server.on('request', listener);
 
   console.log(`server is listening on port ${port}`);
 };

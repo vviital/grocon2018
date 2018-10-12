@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node --experimental-worker node_modules/.bin/jest --runInBand",
     "start": "node --experimental-worker --inspect=127.0.0.1:9999 --inspect-brk ./multithreading/index.js",
-    "start-server": "node ./http2/src/index",
+    "start-server": "nodemon ./http2/src/index",
     "start-koa-server": "nodemon ./http2-koa/src/index",
     "start-hapi-server": "nodemon ./http2-hapi/src/index"
   },

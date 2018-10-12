@@ -1,33 +1,11 @@
 const { Server } = require('hapi');
-const http2 = require('http2');
-const path = require('path');
-const fs = require('fs');
-const faker = require('faker');
-const _ = require('lodash');
 
-const unicorns = [1, 2, 3, 4, 5, 6].map(number => ({
-  id: number,
-  name: faker.name.findName(),
-  path: `/unicorns/${number}`,
-}));
-
-const options = {
-  key: fs.readFileSync(path.resolve(process.cwd(), 'creds', 'self.key')),
-  cert: fs.readFileSync(path.resolve(process.cwd(), 'creds', 'self.cert')),
-};
-
-const index = fs.readFileSync(path.join(process.cwd(), 'assets', 'index.html')).toString();
-
-const sleep = (timeout) => new Promise((resolve) => setTimeout(resolve, timeout));
-
-const listener = http2.createSecureServer(options);
+const common = require('../../http2-common/index');
 
 const app = new Server({
-  listener,
+  listener: common.server,
   port: 7002,
 });
-
-app.version
 
 app.route([{
   method: 'GET',
@@ -38,9 +16,11 @@ app.route([{
     if (req.httpVersion === '2.0') {
       const { stream } = req;
   
-      if (!stream.pushAllowed) return index;
+      if (!stream.pushAllowed) return common.index;
   
-      const cachedUnicorns = unicorns.slice(0, 3);
+      const cachedUnicorns = common.unicorns.slice(0, 3);
+
+      console.log('cachedUnicorns', cachedUnicorns);
   
       cachedUnicorns.forEach((unicorn) => {
         stream.pushStream({ ':path': unicorn.path }, (err, pushStream) => {
@@ -52,16 +32,16 @@ app.route([{
       });
     }
 
-    return index;
+    return common.index;
   },
  }, {
    method: 'GET',
    path: '/unicorns/{id}',
    handler: async (request, h) => {
     const id = request.params.id;
-    const unicorn = unicorns[id - 1] || {};
+    const unicorn = common.unicorns[id - 1] || {};
 
-    await sleep(1000);
+    await common.sleep(1000);
 
     const response = h.response(unicorn);
 
