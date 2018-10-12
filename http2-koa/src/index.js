@@ -63,4 +63,4 @@ app
 const server = http2.createSecureServer(options, app.callback());
 server.listen(7001);
 
-console.log('server listen on port 7001...');
+console.log('server is listing on port 7001...');
