@@ -48,4 +48,4 @@ app
 common.server.on('request', app.callback());
 common.server.listen(7001);
 
-console.log('server is listing on port 7001...');
+console.log('server is listening on port 7001...');

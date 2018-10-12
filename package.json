@@ -8,7 +8,8 @@
     "start": "node --experimental-worker --inspect=127.0.0.1:9999 --inspect-brk ./multithreading/index.js",
     "start-server": "nodemon ./http2/src/index",
     "start-koa-server": "nodemon ./http2-koa/src/index",
-    "start-hapi-server": "nodemon ./http2-hapi/src/index"
+    "start-hapi-server": "nodemon ./http2-hapi/src/index",
+    "start-fastify-server": "nodemon ./http2-fastify/src/index"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
   "dependencies": {
     "express": "^4.16.3",
     "faker": "^4.1.0",
+    "fastify": "^1.12.1",
     "hapi": "^17.6.0",
     "jest": "^23.6.0",
     "koa": "^2.5.3",

@@ -19,8 +19,6 @@ app.route([{
       if (!stream.pushAllowed) return common.index;
   
       const cachedUnicorns = common.unicorns.slice(0, 3);
-
-      console.log('cachedUnicorns', cachedUnicorns);
   
       cachedUnicorns.forEach((unicorn) => {
         stream.pushStream({ ':path': unicorn.path }, (err, pushStream) => {
@@ -64,5 +62,5 @@ app.route([{
 
 app.start((err) => {
   if (err) return console.error(err);
-  console.log('server is listing on port 7002...')
+  console.log('server is listening on port 7002...')
 });
