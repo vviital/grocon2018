@@ -1,0 +1,35 @@
+defaultEntryPoints = ["http", "https"]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+  compress = true
+  [entryPoints.https.tls]
+    [[entryPoints.https.tls.certificates]]
+      certFile = "/etc/traefik/self.cert"
+      keyFile = "/etc/traefik/self.key"
+
+[api]
+address = ":8080"
+
+[file]
+  [backends]
+    [backends.machine]
+      [backends.machine.servers.node1]
+      url = "http://machine"
+      weight = 10
+    [backends.http2]
+      [backends.http2.servers.node1]
+      url = "h2c://plain-http"
+      weight = 10
+
+[frontends]
+  # [frontends.machine_test]
+  # backend = "machine"
+  # rule = "PathPrefixStrip:/test"
+  [frontends.plain_http]
+  backend = "http2"
