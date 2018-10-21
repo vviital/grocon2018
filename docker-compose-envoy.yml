@@ -1,0 +1,19 @@
+version: '3.3'
+
+services:
+  envoy:
+    build:
+      context: .
+      dockerfile: Dockerfile_envoy
+    ports:
+      - "8080:8080"
+      - "10000:10000"
+      - "443:443"
+  machine:
+    image: katacoda/docker-http-server
+  plain-http:
+    build:
+      context: .
+      dockerfile: Dockerfile_plain_http
+    volumes:
+        - "./http2-plain:/home/app/http2-plain"   

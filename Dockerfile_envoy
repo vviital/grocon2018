@@ -1,0 +1,6 @@
+FROM envoyproxy/envoy:latest
+
+WORKDIR /home/certs
+
+COPY proxies/envoy/envoy.yaml /etc/envoy/envoy.yaml
+COPY creds /home/certs
