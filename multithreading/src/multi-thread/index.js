@@ -42,29 +42,19 @@ const calculateDistances = (flatMatrix, size) => {
       array[i] = flatMatrix[i];
     }
 
-    const options = {
-      array,
-      barriers,
-      locks,
-      size,
-    }
-  
+    let remain = threadsCount;
+    const options = { array, barriers, locks, size };
     const workers = _.times(threadsCount).map((id) => createWorker({ ...options, id }));
   
-    let remain = threadsCount;
-  
-    workers
-      .forEach(worker => worker
-        .on('exit', () => {
-          remain--;
-          if (remain === 0) {
-            resolve(matrix);
-          }
-        })
-        .on('error', reject)
-      );
+    workers.forEach(worker => worker
+      .on('exit', () => {
+        remain--;
+        if (remain === 0) resolve(matrix);
+      })
+      .on('error', reject)
+    );
   }); 
-}
+};
 
 module.exports = {
   calculateDistances,

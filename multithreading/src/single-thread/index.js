@@ -11,12 +11,12 @@ const calculateDistances = async (flatMatrix, size) => {
     }
 
     for (let i = 0; i < matrix.size; i++) {
-      let iTok = matrix.get(i, k);
+      let iToK = matrix.get(i, k);
 
       for (let j = 0; j < matrix.size; ++j) {
-        const nextLength = iTok + array[j];
-        const currentLenght = matrix.get(i, j);
-        const value = nextLength > currentLenght ? currentLenght : nextLength;
+        const nextLength = iToK + array[j];
+        const currentLength = matrix.get(i, j);
+        const value = nextLength > currentLength ? currentLength : nextLength;
 
         matrix.set(i, j, value);
       }
