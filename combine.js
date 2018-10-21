@@ -1,29 +1,47 @@
 const fs = require('fs');
 const path = require('path');
+const _ = require('lodash');
 
-const files = fs.readdirSync('signals');
+const root = 'results';
+const files = fs.readdirSync(root);
 
 const results = {
   single: {},
   multi: {},
 };
 
-const processSingle = (data, size) => {
+const processSingle = (files, size) => {
+  const values = files.map((file) => {
+    const value = require(file);
+    return value.single.diff;
+  });
+
+  const minimum = _.min(values);
+
+  const mean = _.mean(values.filter(value => value < 2 * minimum));
+  
   if (!results.single[size]) {
     results.single[size] = 0;
   }
-  results.single[size] += data.diff;
+  results.single[size] += mean;
 };
 
-const processMultiCore = (data, size, cores) => {
+
+const processMultiCore = (files, size, cores) => {
+  const values = files.map((file) => {
+    const value = require(file);
+    return value.multi.diff;
+  });
+
+  const minimum = _.min(values);
+  
+  const mean = _.mean(values.filter(value => value < 2 * minimum));
+  
   if (!results.multi[cores]) {
     results.multi[cores] = {};
   }
 
-  if (!results.multi[cores][size]) {
-    results.multi[cores][size] = 0;
-  }
-  results.multi[cores][size] = data.diff;
+  results.multi[cores][size] = mean;
 };
 
 const normalizeSingle = () => {
@@ -60,24 +78,26 @@ const printCSV = () => {
   });
 };
 
-const processFile = (filepath, cores, size) => {
-  const data = require(path.resolve(__dirname, filepath));
+const processFile = (subdirpath, cores, size) => {
+  const files = fs.readdirSync(subdirpath);
 
-  processSingle(data.single, size);
-  processMultiCore(data.multi, size, cores);
+  const filenames = files.map(file => path.resolve(__dirname, subdirpath, file));
+
+  processSingle(filenames, size);
+  processMultiCore(filenames, size, cores);
 };
 
 files.forEach((file) => {
-  const dirpath= path.join('signals', file);
+  const dirpath= path.join(root, file);
   const stats = fs.statSync(dirpath);
 
   if (!stats.isDirectory()) return;
 
-  const files = fs.readdirSync(dirpath);
+  const subdirs = fs.readdirSync(dirpath);
 
-  files.forEach((filename) => {
-    const filepath = path.join(dirpath, filename);
-    processFile(filepath, file, filename.match(/([0-9]*)/)[0]);
+  subdirs.forEach((subdirname) => {
+    const subdirpath = path.join(dirpath, subdirname);
+    processFile(subdirpath, file, subdirname.match(/([0-9]*)/)[0]);
   });
 });
 
