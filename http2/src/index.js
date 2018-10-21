@@ -16,7 +16,7 @@ const notFound = (res) => {
   res.end('Not found');
 };
 
-const loggerRequest = (req) => {
+const logger = (req) => {
   const { headers } = req;
   const route = headers[':path'];
   const method = headers[':method'];
@@ -36,22 +36,19 @@ const pushUnicorns = (stream) => {
 
 const start = () => {
   const listener = async (req, res) => {
-    if (req.httpVersion !== '2.0') {
-      return res.end(JSON.stringify({ version: req.httpVersion }));
-    }
+    if (req.httpVersion !== '2.0') return res.end(JSON.stringify({ version: req.httpVersion }));
 
-    await sleep(500);
+    await sleep(1000);
 
-    loggerRequest(req);
-    const { headers } = req;
-    const route = headers[':path'];
+    logger(req);
+    const route = req.headers[':path'];
     if (route === '/') {
       res.end(common.index);
     } else if (route.includes('unicorns')) {
       const id = +route.replace('/unicorns/', '');
       const unicorn = common.unicorns.find(v => v.id === id);
 
-      if (!unicorn) return !notFound(res);
+      if (!unicorn) return notFound(res);
 
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(unicorn));
