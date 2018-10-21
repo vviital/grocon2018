@@ -23,6 +23,7 @@ module.exports = {
   options,
   server: http2.createSecureServer(options),
   createServer: (callback) => http2.createServer(options, callback),
+  createSecureServer: (callback) => http2.createSecureServer(options, callback),
   sleep,
   unicorns,
 }
