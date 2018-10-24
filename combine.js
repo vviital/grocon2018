@@ -35,7 +35,8 @@ const processMultiCore = (files, size, cores) => {
 
   const minimum = _.min(values);
   
-  const mean = _.mean(values.filter(value => value < 2 * minimum));
+  const threshold = Math.min(2 * minimum, minimum + 500);
+  const mean = _.mean(values.filter(value => value < threshold && value > minimum));
   
   if (!results.multi[cores]) {
     results.multi[cores] = {};

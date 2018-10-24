@@ -10,8 +10,24 @@ jest.setTimeout(60000);
 
 const size = +process.env.SIZE;
 const cores = +process.env.CORES;
+const attempt = +process.env.ATTEMPT;
 
-console.log('cores', cores);
+console.log('--- size ---', size);
+console.log('--- cores ---', cores);
+console.log('--- attempt ---', attempt);
+
+const createDir = (dirname) => {
+  const pieces = dirname.split('/');
+  let directory = '';
+  
+  for (let i = 0; i < pieces.length; ++i) {
+    directory += pieces[i] + '/';
+
+    if (!fs.existsSync(directory)) {
+      fs.mkdirSync(directory);
+    }
+  }
+}
 
 describe('Floyd algorithm', () => {
   const results = {};
@@ -26,13 +42,11 @@ describe('Floyd algorithm', () => {
 
         expect(isEqual).toBeTruthy();
 
-        const directory = `signals/${cores}`;
+        const directory = `results/${cores}`;
 
-        if (!fs.existsSync(directory)) {
-          fs.mkdirSync(directory);
-        }
+        createDir(`results/${cores}/${size}`);
 
-        fs.writeFileSync(`${directory}/${size}.json`, JSON.stringify(results[size], ' ', 1));
+        fs.writeFileSync(`${directory}/${size}/${attempt}.json`, JSON.stringify(results[size], ' ', 1));
       });
   
       it('should calculate final matrix at single tread', async () => {
@@ -57,10 +71,6 @@ describe('Floyd algorithm', () => {
       });
     })
   };
-
-  // afterAll(() => {
-  //   fs.writeFileSync('results.json', JSON.stringify(results, ' ', 1));
-  // })
 
   generateTest(size);
 });
