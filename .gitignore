@@ -2,4 +2,5 @@ node_modules
 .DS_Store
 results.*
 yarn-error.log
-creds/*
+*.cert
+*.key
